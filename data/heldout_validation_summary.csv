@@ -1,0 +1,3 @@
+set,n_set,n_up_set,n_dn_set,n_up_measured,n_dn_measured,n_measured,n_concordant,concordance,binom_p_greater,score_diff_case_minus_control,cohens_d,perm_p_greater,perm_n,verdict
+P283,121,23,98,23,91,114,20,0.175438596491228,0.999999999999879,-0.895053451578267,-1.22098675333784,0.988095238095238,252,not_supported
+NOM18,18,5,13,5,8,13,3,0.230769230769231,0.98876953125,-0.566610551131541,-0.849022679107394,0.904761904761905,252,not_supported

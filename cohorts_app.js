@@ -8,8 +8,11 @@ var GS = {
   adenoid_row: {en: "Adenoid (paediatric OSA, severity grades)", zh: "腺样体（儿童 OSA，严重度分级）"},
   adenoid_notes: {en: "External single-cell atlas, not a GEO series. 23 donors; 238,500 cells deposited, 238,093 annotated (Step 4). Expression matrices only; TCR/BCR not verified and not used.", zh: "外部单细胞图谱，非 GEO 系列。23 名供体；沉积 238,500 细胞，注释 238,093（Step 4）。仅表达矩阵；TCR/BCR 未核验、未使用。"},
   fio2: {en: "FiO₂ nadir", zh: "FiO₂ 谷底"}, cyc: {en: "Cycle", zh: "循环"}, hrs: {en: "Daily", zh: "每日"}, dur: {en: "Duration", zh: "总时长"}, rec: {en: "Recovery arm", zh: "恢复臂"},
-  count: {en: "series shown", zh: "显示系列数"}
+  count: {en: "series shown", zh: "显示系列数"},
+  count_geo: {en: "GEO series shown", zh: "显示 GEO 系列数"}, count_ext: {en: "external atlas shown", zh: "显示外部图谱数"}
 };
+var TISSUE_EN = {"肝": "Liver", "PBMC": "PBMC", "海马": "Hippocampus", "主动脉": "Aorta", "心": "Heart", "肺": "Lung", "脑（海马）": "Brain (hippocampus)", "肝（肿瘤）": "Liver (tumour)", "视网膜": "Retina", "大脑（分选小胶质细胞）": "Brain (sorted microglia)", "肝+附睾脂肪": "Liver + epididymal adipose", "肾": "Kidney", "颏舌肌": "Genioglossus", "脑/心/骨骼肌/皮下脂肪/肺（多组织）": "Brain / heart / skeletal muscle / subcutaneous adipose / lung (multi-tissue)", "肺/心/肝/肾/肌肉/小脑": "Lung / heart / liver / kidney / muscle / cerebellum", "皮下脂肪": "Subcutaneous adipose", "PBMC（单细胞）": "PBMC (single-cell)", "唾液": "Saliva", "扁桃体": "Tonsil", "外周血（全血/PBMC 未在题名明示）": "Peripheral blood (whole blood / PBMC not specified in title)", "内脏脂肪": "Visceral adipose", "外周血白细胞": "Peripheral blood leukocytes"};
+function tissueTxt(v) { return LANG === "en" ? (TISSUE_EN[v] || v) : v; }
 var LANG = "en", DATA = [];
 function t(k) { return (GS[k] && GS[k][LANG]) || k; }
 function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
@@ -35,10 +38,11 @@ function render() {
       '<a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=' + r.accession + '" target="_blank" rel="noopener">' + r.accession + "</a>";
     var badge = r.heldout ? ' <span class="tier tier-fdr_single">' + t("heldout") + "</span>" : "";
     h += "<tr><td>" + acc + badge + "</td><td>" + esc(r.layer) + "</td><td>" + esc(r.species) + "</td><td>" +
-         esc(r.tissue) + "</td><td>" + esc(r.modality) + "</td><td>" + esc(r.n_gsm) + "</td><td>" + esc(r.form) +
+         esc(tissueTxt(r.tissue)) + "</td><td>" + esc(r.modality) + "</td><td>" + esc(r.n_gsm) + "</td><td>" + esc(r.form) +
          "</td><td>" + esc(proto) + "</td><td title=\"" + esc(r.notes) + "\">" + esc(r.notes.slice(0, 180)) + "…</td></tr>";
   });
-  document.getElementById("cohTable").innerHTML = h + '<tr><td colspan="9" class="small">' + rows.length + " " + t("count") + "</td></tr>";
+  var geoN = rows.filter(function (r) { return !r.ext; }).length, extN = rows.length - geoN;
+  document.getElementById("cohTable").innerHTML = h + '<tr><td colspan="9" class="small">' + geoN + " " + t("count_geo") + (extN ? " + " + extN + " " + t("count_ext") : "") + "</td></tr>";
 }
 function init() {
   fetch("data/cohorts.json").then(function (r) { return r.json(); }).then(function (d) {

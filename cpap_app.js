@@ -11,6 +11,12 @@ var GS = {
   stage_note: {en: "GSE283703 stage scores are the single program score as computed in Step 3 (donor stages Base / Short / Long CPAP).", zh: "GSE283703 分期分数为 Step 3 计算的单一程序分数（供体分期 Base / Short / Long CPAP）。"}
 };
 var LANG = "en", DATA = null;
+var TYPE_ZH = {within_subject_paired: "受试者内配对", between_group_NOT_paired: "组间（非配对）", within_subject_paired_donoravg: "受试者内配对（供体平均）", combined_directional_Stouffer: "合并方向性 Stouffer", longitudinal_vs_healthy: "纵向对健康", longitudinal_gene_trajectory: "纵向基因轨迹", recovery_arm_single_timepoint: "恢复臂单时点", recovery_arm_residual_vs_never_exposed: "恢复臂残留对从未暴露"};
+var SIDE_ZH = {human_CPAP: "人类 CPAP", animal_recovery: "动物恢复"};
+var GROUP_ZH = {Pre: "前", Post: "后", "pre-CPAP": "CPAP 前", "post-CPAP": "CPAP 后", Normal: "正常", Untreated: "未治疗", NaiveOSA: "未治 OSA", CPAP: "CPAP", Snore: "鼾症", Base: "基线", Short: "短期", Long: "长期"};
+var TRAJ_ZH = {non_reversing: "不逆转", partial_nominal_reversal: "部分名义逆转", late_reversal: "晚期逆转", early_reversal: "早期逆转"};
+function zhLabel(map, v) { return LANG === "zh" ? (map[v] || v) : v; }
+function metricTxt(v) { if (LANG !== "zh") return v; if (v === "program_score_change_dz") return "程序分数变化 dz"; if (v === "FDR_genes_remaining_longCPAP_vs_healthy_transcriptomewide") return "长期 CPAP 后对健康（全转录组）残留 FDR 基因数"; if (v === "fraction_recovery_logFC_opposite_to_exposure") return "恢复 logFC 与暴露反向的比例"; if (v === "fraction_still_nominally_changed_same_direction_after_recovery") return "恢复后仍名义同向变化的比例"; if (v.indexOf("trajectory_class:") === 0) return "轨迹类别：" + (TRAJ_ZH[v.slice(17)] || v.slice(17)); return v; }
 function t(k) { return (GS[k] && GS[k][LANG]) || k; }
 function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
 function fmt(v, nd) { return (v === null || v === undefined || v === "") ? "—" : (isNaN(Number(v)) ? esc(v) : Number(v).toFixed(nd == null ? 3 : nd)); }
@@ -50,7 +56,7 @@ function dots(groups) {
     });
     var mean = vals.reduce(function (a, b) { return a + b; }, 0) / vals.length;
     s += '<line x1="' + (cx - 26) + '" y1="' + Y(mean) + '" x2="' + (cx + 26) + '" y2="' + Y(mean) + '" stroke="#b02a2a" stroke-width="2.4"/>';
-    s += '<text x="' + cx + '" y="' + (H - 8) + '" font-size="12" text-anchor="middle">' + esc(l) + " (n=" + vals.length + ")</text>";
+    s += '<text x="' + cx + '" y="' + (H - 8) + '" font-size="12" text-anchor="middle">' + esc(zhLabel(GROUP_ZH, l)) + " (n=" + vals.length + ")</text>";
   });
   return s + "</svg>";
 }
@@ -63,12 +69,12 @@ function render() {
   document.getElementById("cpapSetL").textContent = t("score_set");
   var h = "<tr><th>" + t("design") + "</th><th>" + t("set") + "</th><th>" + t("type") + "</th><th>" + t("n") + "</th><th>" + t("dz") + "</th><th>p</th></tr>";
   DATA.summary.forEach(function (r) {
-    h += "<tr><td>" + esc(r.design) + "</td><td>" + esc(r.set) + "</td><td>" + esc(r.type) + "</td><td>" + esc(r.n_pairs) + "</td><td>" + fmt(r.effect_dz) + "</td><td>" + fmt(r.p_value, 4) + "</td></tr>";
+    h += "<tr><td>" + esc(r.design) + "</td><td>" + esc(r.set) + "</td><td>" + esc(zhLabel(TYPE_ZH, r.type)) + "</td><td>" + (r.n_pairs === "" ? "n/a" : esc(r.n_pairs)) + "</td><td>" + fmt(r.effect_dz) + "</td><td>" + fmt(r.p_value, 4) + "</td></tr>";
   });
   document.getElementById("cpapSum").innerHTML = h;
   var rh = "<tr><th>" + t("side") + "</th><th>" + t("dataset") + "</th><th>" + t("set") + "</th><th>" + t("type") + "</th><th>" + t("n") + "</th><th>" + t("metric") + "</th><th>" + t("value") + "</th><th>p</th></tr>";
   DATA.recovery.forEach(function (r) {
-    rh += "<tr><td>" + esc(r.side) + "</td><td>" + esc(r.dataset) + "</td><td>" + esc(r.set) + "</td><td>" + esc(r.design_type) + "</td><td>" + esc(r.n) + "</td><td>" + esc(r.metric) + "</td><td>" + fmt(r.value) + "</td><td>" + fmt(r.p, 4) + "</td></tr>";
+    rh += "<tr><td>" + esc(zhLabel(SIDE_ZH, r.side)) + "</td><td>" + esc(r.dataset) + "</td><td>" + esc(r.set) + "</td><td>" + esc(zhLabel(TYPE_ZH, r.design_type)) + "</td><td>" + (r.n === "" ? "n/a" : esc(r.n)) + "</td><td>" + esc(metricTxt(r.metric)) + "</td><td>" + fmt(r.value) + "</td><td>" + fmt(r.p, 4) + "</td></tr>";
   });
   document.getElementById("cpapRec").innerHTML = rh + '<tr><td colspan="8"><div class="warn">' + t("perm_note") + "</div></td></tr>";
   plot();

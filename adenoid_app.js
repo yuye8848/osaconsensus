@@ -10,6 +10,9 @@ var GS = {
   order: {en: "Severity grades: Control → Mild → Moderate → Severe (23 donors: 4 / 7 / 6 / 6). No composition shift survives multiple-testing correction (min FDR 0.302, Step 4).", zh: "严重度等级：对照 → 轻度 → 中度 → 重度（23 名供体：4 / 7 / 6 / 6）。无组成移位通过多重校正（最小 FDR 0.302，Step 4）。"}
 };
 var LANG = "en", DATA = null, FID = null;
+var GRADE_ZH = {Control: "对照", Mild: "轻度", Moderate: "中度", Severe: "重度"};
+var PROG_ZH = {Hypoxia: "低氧", Circadian: "昼夜", Inflammation: "炎症", OxidativeStress: "氧化应激"};
+function zhLabel(map, v) { return LANG === "zh" ? (map[v] || v) : v; }
 var ORDER = ["Control", "Mild", "Moderate", "Severe"];
 function t(k) { return (GS[k] && GS[k][LANG]) || k; }
 function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
@@ -37,7 +40,7 @@ function chart() {
     var vals = groups[l], mean = vals.reduce(function (a, b) { return a + b; }, 0) / vals.length;
     s += '<rect x="' + (cx - bw / 2) + '" y="' + Y(mean) + '" width="' + bw + '" height="' + (Y(0) - Y(mean)) + '" fill="#2b7ea8" fill-opacity="0.45"/>';
     vals.forEach(function (v, i) { s += '<circle cx="' + (cx + ((i * 29) % 37) - 18) + '" cy="' + Y(v) + '" r="3.2" fill="#17557a" fill-opacity="0.75"/>'; });
-    s += '<text x="' + cx + '" y="' + (H - 8) + '" font-size="12" text-anchor="middle">' + esc(l) + " (n=" + vals.length + ")</text>";
+    s += '<text x="' + cx + '" y="' + (H - 8) + '" font-size="12" text-anchor="middle">' + esc(zhLabel(GRADE_ZH, l)) + " (n=" + vals.length + ")</text>";
   });
   document.getElementById("adeComp").innerHTML = s + "</svg>" + '<p class="small">' + t("order") + "</p>";
 }
@@ -55,7 +58,7 @@ function render() {
   if (FID && FID.adenoid) {
     var ph = "<tr><th>" + t("prog") + "</th><th>" + t("eff") + "</th><th>p</th><th>" + t("fdr") + "</th><th>" + t("sv") + "</th></tr>";
     FID.adenoid.forEach(function (r) {
-      ph += "<tr><td>" + esc(r.program) + "</td><td>" + fmt(r.effect_trend_per_step) + "</td><td>" + fmt(r.p_trend, 4) + "</td><td>" + fmt(r.FDR_trend, 4) + "</td><td>" + fmt(r.effect_Sev_vs_Ctrl) + "</td></tr>";
+      ph += "<tr><td>" + esc(zhLabel(PROG_ZH, r.program)) + "</td><td>" + fmt(r.effect_trend_per_step) + "</td><td>" + fmt(r.p_trend, 4) + "</td><td>" + fmt(r.FDR_trend, 4) + "</td><td>" + fmt(r.effect_Sev_vs_Ctrl) + "</td></tr>";
     });
     document.getElementById("adePath").innerHTML = ph + '<tr><td colspan="5" class="small">' + t("ssgsea_note") + "</td></tr>";
   }

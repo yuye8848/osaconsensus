@@ -24,27 +24,27 @@ function render() {
   document.getElementById("fidRankH").textContent = t("rank_h");
   document.getElementById("fidMatH").textContent = t("mat_h");
   var h = "<tr><th>#</th><th>" + t("combo") + "</th><th>" + t("cohorts") + "</th><th>" + t("r") + "</th><th>" + t("perm") + "</th><th>" + t("sign") + "</th>" +
-          PROGS.map(function (p) { return "<th>" + p + "</th>"; }).join("") + "</tr>";
+          PROGS.map(function (p) { return "<th>" + p + "</th>"; }).join("\n") + "</tr>\n";
   DATA.ranking.forEach(function (r, i) {
     h += '<tr class="fidrow" data-i="' + i + '" style="cursor:pointer"><td>' + (i + 1) + "</td><td>" + esc(r.combo) + "</td><td>" + esc(r.cohorts) +
          "</td><td><b>" + fmt(r.profile_r) + "</b></td><td>" + fmt(r.perm_p) + "</td><td>" + esc(r.sign_agree) + "/4</td>" +
-         PROGS.map(function (p) { return '<td style="' + cellBg(r[p]) + '">' + fmt(r[p], 2) + "</td>"; }).join("") + "</tr>";
+         PROGS.map(function (p) { return '<td style="' + cellBg(r[p]) + '">' + fmt(r[p], 2) + "</td>"; }).join("\n") + "</tr>\n";
   });
   document.getElementById("fidRank").innerHTML = h;
   // matrix
   var byCohort = {};
   DATA.matrix.forEach(function (r) { (byCohort[r.cohort] = byCohort[r.cohort] || {})[r.program] = r; });
-  var mh = "<tr><th>" + t("cohorts") + "</th>" + PROGS.map(function (p) { return "<th>" + p + "</th>"; }).join("") + "</tr>";
+  var mh = "<tr><th>" + t("cohorts") + "</th>" + PROGS.map(function (p) { return "<th>" + p + "</th>"; }).join("\n") + "</tr>\n";
   mh += '<tr><td><b>' + t("human") + "</b></td>" + PROGS.map(function (p) {
     return '<td style="' + cellBg(DATA.human_profile[p]) + '"><b>' + fmt(DATA.human_profile[p], 2) + "</b></td>";
-  }).join("") + "</tr>";
+  }).join("\n") + "</tr>\n";
   Object.keys(byCohort).sort().forEach(function (c) {
-    mh += "<tr><td>" + esc(c) + " <span class='small'>" + esc(byCohort[c][PROGS[0]].tissue || "") + "</span></td>" + PROGS.map(function (p) {
+    mh += "<tr><td>" + esc(c) + " · <span class='small'>" + esc(byCohort[c][PROGS[0]].tissue || "") + "</span></td>" + PROGS.map(function (p) {
       var r = byCohort[c][p];
       if (!r) return "<td>—</td>";
       var mark = (r.sign_match === true || r.sign_match === "TRUE") ? " ✓" : " ✗";
       return '<td style="' + cellBg(r.animal_effect) + '" title="' + (mark === " ✓" ? t("match") : t("nomatch")) + '">' + fmt(r.animal_effect, 2) + mark + "</td>";
-    }).join("") + "</tr>";
+    }).join("\n") + "</tr>\n";
   });
   document.getElementById("fidMat").innerHTML = mh;
   Array.prototype.forEach.call(document.querySelectorAll(".fidrow"), function (row) {
@@ -55,14 +55,14 @@ function render() {
       var dh = "<h3>" + t("detail") + ": " + esc(r.combo) + "</h3>";
       if (!rows.length) dh += '<p class="small">' + esc(r.cohorts) + "</p>";
       else {
-        dh += '<div class="tblwrap"><table><tr><th>' + t("cohorts") + "</th>" + PROGS.map(function (p) { return "<th>" + p + "</th>"; }).join("") + "</tr>";
+        dh += '<div class="tblwrap"><table><tr><th>' + t("cohorts") + "</th>" + PROGS.map(function (p) { return "<th>" + p + "</th>"; }).join("\n") + "</tr>\n";
         var bc = {};
         rows.forEach(function (m) { (bc[m.cohort] = bc[m.cohort] || {})[m.program] = m; });
         Object.keys(bc).forEach(function (c) {
           dh += "<tr><td>" + esc(c) + "</td>" + PROGS.map(function (p) {
             var m = bc[c][p];
             return m ? '<td style="' + cellBg(m.animal_effect) + '">' + fmt(m.animal_effect, 2) + "</td>" : "<td>—</td>";
-          }).join("") + "</tr>";
+          }).join("\n") + "</tr>\n";
         });
         dh += "</table></div>";
       }

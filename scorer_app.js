@@ -11,6 +11,8 @@ var GS = {
   species: {en: "Species", zh: "物种"}, universe: {en: "Background", zh: "背景"}
 };
 var LANG = "en", PANELS = null;
+var SP_ZH = {human: "人", mouse: "小鼠", rat: "大鼠"};
+function spTxt(v) { return LANG === "zh" ? (SP_ZH[v] || v) : v; }
 function t(k) { return (GS[k] && GS[k][LANG]) || k; }
 function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
 function tierTxt(key) { var d = window.OC_I18N && window.OC_I18N["tier_" + key]; return d ? d[LANG] : key; }
@@ -82,7 +84,7 @@ function run() {
   results.forEach(function (r, i) {
     var name = LANG === "zh" ? r.p.name_zh : r.p.name_en;
     h += '<tr class="scorow" data-i="' + i + '" style="cursor:pointer"><td>' + esc(name) + (r.p.warn ? ' <span class="tier tier-revoked">⚠</span>' : "") +
-      '</td><td><span class="tier tier-' + r.p.tier + '">' + esc(tierTxt(r.p.tier)) + "</span></td><td>" + esc(r.p.species) +
+      '</td><td><span class="tier tier-' + r.p.tier + '">' + esc(tierTxt(r.p.tier)) + "</span></td><td>" + esc(spTxt(r.p.species)) +
       "</td><td>" + r.K + "</td><td>" + r.p.universe + "</td><td>" + r.hits.length + "</td><td>" + fmtP(r.hp) + "</td><td>" +
       (r.m ? (r.c + "/" + r.m + " = " + (r.c / r.m).toFixed(3)) : "—") + "</td><td>" + fmtP(r.bp) + "</td></tr>";
     var hitTxt = r.hits.map(function (s) {
